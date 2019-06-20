@@ -1,46 +1,96 @@
-BIN_LIB=WSCLIB
+# library for programs
+BINLIB=WSCLIB
+
+# library for data
+FILELIB=WSCFIL
+
+# shell to use (for consistency)
+SHELL=/QOpenSys/usr/bin/qsh
+
+# Compile option for easy debugging
 DBGVIEW=*SOURCE
 
-# make the build library (BIN_LIB) the one in binlib.inc in your home directory 
+
+# get your user name in all caps
 USER_UPPER := $(shell echo $(USER) | tr a-z A-Z)
 
-# here you can do things when you are building in your home directory
+# If your user name is in the path, we're assuming this is not 
+# going to build in the main libraries
 ifeq ($(USER_UPPER), $(findstring $(USER_UPPER),$(CURDIR)))
+# so override the BINLIB and FILELIB in binlib.inc in your home directory
     include  ~/binlib.inc
-endif    
+endif
+
+# your library list for rpg compiles
+LIBLIST=$(FILELIB) $(BINLIB) WSCFIL CMSFIL
 
 
-all: logerrors.srvpgm utilities.bnddir
+# list of objects for your binding directory
+BNDDIRLIST = empclshst.entrymod logerrors.entrysrv
 
-logerrors.srvpgm: logerrors.sqlrpgle
- 
+# everything you want to build here
+all: empoccchg.sql return_employee_occupation_description.sql empclshst.pgm 
 
-utilities.bnddir: logerrors.entry 
+# dependency lists
+empclshst.pgm: empclshst.bnddir empclshst.sqlrpgle
 
+empclshst.bnddir: $(BNDDIRLIST)
+
+
+
+%.bnddir:
+	-system -q "CRTBNDDIR BNDDIR($(BINLIB)/$*)"
+	-system -q "ADDBNDDIRE BNDDIR($(BINLIB)/$*) OBJ($(patsubst %.entrysrv,(*LIBL/% *SRVPGM *IMMED), $(patsubst %.entrymod,(*LIBL/% *MODULE *IMMED),$^)))"
+
+
+
+# sql statements should build in the data library
+%.sql:
+	sed 's/FILELIB/$(FILELIB)/g' ./source/$*.sql  > ./source/$*.sql2
+	system -q "RUNSQLSTM SRCSTMF('./source/$*.sql2')"
+	rm ./source/$*.sql2
 
 %.sqlrpgle:
-	system "CRTSQLRPGI OBJ($(BIN_LIB)/$*) SRCSTMF('./source/$*.sqlrpgle') \
+	liblist -a $(LIBLIST);\
+	system "CRTSQLRPGI OBJ($(BINLIB)/$*) SRCSTMF('./source/$*.sqlrpgle') \
 	COMMIT(*NONE) OBJTYPE(*MODULE) OPTION(*EVENTF) REPLACE(*YES) DBGVIEW($(DBGVIEW)) \
-	compileopt('INCDIR(''$(CURDIR)'' ''/wright-service-corp/Utility'')')"
-#	@touch $@
+	compileopt('INCDIR(''$(CURDIR)''   ''/wright-service-corp/Utility'')')"
+#   	@touch $@
 
 
 %.rpgle:
-	system "CRTRPGMOD MODULE($(BIN_LIB)/$*) SRCSTMF('./source/$*.rpgle') DBGVIEW($(DBGVIEW)) REPLACE(*YES)"
+	liblist -a $(LIBLIST);\
+	system "CRTRPGMOD MODULE($(BINLIB)/$*) SRCSTMF('./source/$*.rpgle') DBGVIEW($(DBGVIEW)) REPLACE(*YES)"
 #	@touch $@
+
+
+%.pgm:
+	liblist -a $(LIBLIST);\
+	system "CRTPGM PGM($(BINLIB)/$*)  BNDDIR($(BINLIB)/$*) REPLACE(*YES)"
+#	@touch $@
+
+%.clle: 
+	-system -q "CRTSRCPF FILE($(BINLIB)/QCLLESRC) RCDLEN(112)"
+	system "CPYFRMSTMF FROMSTMF('./source/$*.clle') TOMBR('/QSYS.lib/$(BINLIB).lib/QCLLESRC.file/$*.mbr') MBROPT(*replace)"
+	liblist -a $(LIBLIST); system "CRTBNDCL PGM($(BINLIB)/$*) SRCFILE($(BINLIB)/QCLLESRC)"
 
 %.srvpgm:
     # We need the binder source as a member! SRCSTMF on CRTSRVPGM not available on all releases.
-	-system -q "CRTSRCPF FILE($(BIN_LIB)/QSRC) RCDLEN(112)"
-	system "CPYFRMSTMF FROMSTMF('./header/$*.binder') TOMBR('/QSYS.lib/$(BIN_LIB).lib/QSRC.file/$*.mbr') MBROPT(*replace)"
+	-system -q "CRTSRCPF FILE($(BINLIB)/QSRC) RCDLEN(112)"
+	system "CPYFRMSTMF FROMSTMF('./headers/$*.binder') TOMBR('/QSYS.lib/$(BINLIB).lib/QSRC.file/$*.mbr') MBROPT(*replace)"
 
-	system "CRTSRVPGM SRVPGM($(BIN_LIB)/$*) MODULE($(patsubst %,$(BIN_LIB)/%,$(basename $^))) SRCFILE($(BIN_LIB)/QSRC)"
+	system "CRTSRVPGM SRVPGM($(BINLIB)/$*) MODULE($(patsubst %,$(BINLIB)/%,$(basename $^))) SRCFILE($(BINLIB)/QSRC)"
 #	@touch $@
 
-%.bnddir:
-	-system -q "CRTBNDDIR BNDDIR($(BIN_LIB)/$*)"
-	-system -q "ADDBNDDIRE BNDDIR($(BIN_LIB)/$*) OBJ($(patsubst %.entry,(*LIBL/% *SRVPGM *IMMED),$^))"
 
 %.entry:
+    # Basically do nothing..
+	@echo ""
+	
+%.entrymod:
+    # Basically do nothing..
+	@echo ""
+	
+%.entrysrv:
     # Basically do nothing..
 	@echo ""
