@@ -77,7 +77,7 @@ empclshst.bnddir: $(BNDDIRLIST)
 %.srvpgm:
     # We need the binder source as a member! SRCSTMF on CRTSRVPGM not available on all releases.
 	-system -q "CRTSRCPF FILE($(BINLIB)/QSRC) RCDLEN(112)"
-	system "CPYFRMSTMF FROMSTMF('./headers/$*.binder') TOMBR('/QSYS.lib/$(BINLIB).lib/QSRC.file/$*.mbr') MBROPT(*replace)"
+	system "CPYFRMSTMF FROMSTMF('./header/$*.bndsrc') TOMBR('/QSYS.lib/$(BINLIB).lib/QSRC.file/$*.mbr') MBROPT(*replace)"
 
 	system "CRTSRVPGM SRVPGM($(BINLIB)/$*) MODULE($(patsubst %,$(BINLIB)/%,$(basename $^))) SRCFILE($(BINLIB)/QSRC)"
 #	@touch $@
