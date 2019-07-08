@@ -29,7 +29,7 @@ LIBLIST= VALENCE52 $(FILELIB) $(BINLIB) WSCFIL CMSFIL
 BNDDIRLIST = empclshst.entrymod logerrors.entrysrv
 
 # everything you want to build here
-all: empoccchg.sql uclxref.sql return_employee_occupation_description.sql empclshst.pgm unxrefcnx.cnxpgm
+all: empoccchg.sqlobj uclxref.sqlobj return_employee_occupation_description.sqlobj empclshst.pgm unxrefcnx.cnxpgm
 
 
 # dependency lists
@@ -38,7 +38,10 @@ empclshst.rpgmod: source/empclshst.sqlrpgle
 
 empclshst.bnddir: $(BNDDIRLIST)
 
-
+empoccchg.sqlobj: source/empoccchg.sql 
+empoccchg.sqlobj: source/empoccchg.sql 
+uclxref.sqlobj: source/uclxref.sql
+return_employee_occupation_description.sqlobj: source/return_employee_occupation_description.sql
 
 
 
@@ -50,7 +53,7 @@ empclshst.bnddir: $(BNDDIRLIST)
 
 
 # sql statements should build in the data library
-%.sql:
+%.sqlobj:
 	sed 's/FILELIB/$(FILELIB)/g' ./source/$*.sql  > ./source/$*.sql2
 	system -q "RUNSQLSTM SRCSTMF('./source/$*.sql2')"
 	rm ./source/$*.sql2
