@@ -1,0 +1,7 @@
+*.bnddir
+*.pgm
+*.sqlobj
+*.cnxpgm
+*.entrymod
+*.emtrysrv
+*.rpgmod
