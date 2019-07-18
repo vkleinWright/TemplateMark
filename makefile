@@ -1,8 +1,17 @@
+
+#-------------------------------------------------------------------------------------------
+# ----- Libraries --------------------------------------------- Edit for this Project ------
+#-------------------------------------------------------------------------------------------
+
 # library for programs
 BINLIB=WSCLIB
 
 # library for data
 FILELIB=WSCFIL
+
+#-------------------------------------------------------------------------------------------
+# Standard variables ----------------------------------------------- Do Not Change ---------
+#-------------------------------------------------------------------------------------------
 
 # shell to use (for consistency)
 SHELL=/QOpenSys/usr/bin/qsh
@@ -20,6 +29,12 @@ ifeq ($(USER_UPPER), $(findstring $(USER_UPPER),$(CURDIR)))
 # so override the BINLIB and FILELIB in binlib.inc in your home directory
     include  ~/binlib.inc
 endif
+
+
+#-------------------------------------------------------------------------------------------
+# Project Specific -------------------------------------------- Edit for this Project ------
+#-------------------------------------------------------------------------------------------
+
 
 # your library list for rpg compiles
 LIBLIST= VALENCE52 $(FILELIB) $(BINLIB) WSCFIL CMSFIL
@@ -44,6 +59,10 @@ uclxref.sqlobj: source/uclxref.sql
 return_employee_occupation_description.sqlobj: source/return_employee_occupation_description.sql
 
 
+#-------------------------------------------------------------------------------------------
+# --- Standard Build Rules ------------------------------------- Do Not Change -------------
+#-------------------------------------------------------------------------------------------
+
 
 %.bnddir:
 	-system -q "CRTBNDDIR BNDDIR($(BINLIB)/$*)"
@@ -61,12 +80,10 @@ return_employee_occupation_description.sqlobj: source/return_employee_occupation
 
 %.rpgmod:
 	liblist -a $(LIBLIST);\
-	system "CRTSQLRPGI OBJ($(BINLIB)/$*) SRCSTMF('./$+') \
+	system "CRTSQLRPGI OBJ($(BINLIB)/$*) SRCSTMF('./source/$<') \
 	COMMIT(*NONE) OBJTYPE(*MODULE) OPTION(*EVENTF) REPLACE(*YES) DBGVIEW($(DBGVIEW)) \
 	compileopt('INCDIR(''$(CURDIR)''   ''/wright-service-corp/Utility'')')" 
 	@touch $@
-
-#   RPGPPOPT = *LVL2
 
 
 %.cnxpgm:
@@ -114,3 +131,7 @@ return_employee_occupation_description.sqlobj: source/return_employee_occupation
 %.entrysrv:
     # Basically do nothing..
 	@echo ""
+	
+%.sqlrpgle:
+    # Basically do nothing..
+	@echo ""	
