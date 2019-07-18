@@ -80,7 +80,7 @@ return_employee_occupation_description.sqlobj: source/return_employee_occupation
 
 %.rpgmod:
 	liblist -a $(LIBLIST);\
-	system "CRTSQLRPGI OBJ($(BINLIB)/$*) SRCSTMF('./source/$<') \
+	system "CRTSQLRPGI OBJ($(BINLIB)/$*) SRCSTMF('./$<') \
 	COMMIT(*NONE) OBJTYPE(*MODULE) OPTION(*EVENTF) REPLACE(*YES) DBGVIEW($(DBGVIEW)) \
 	compileopt('INCDIR(''$(CURDIR)''   ''/wright-service-corp/Utility'')')" 
 	@touch $@
