@@ -1,4 +1,4 @@
 # Template
 For basic directory structure
 
-[This is an external link to genome.gov](103443 Technical Specifications for Wex tables.docx/)
+[103443 Technical Specifications for Wex tables.docx/](https://wrightservicecorpia.sharepoint.com/:w:/s/ITCoreBusiness/EXrbCiOLZIxFpwThzdjiGxwBY5Ude1sMJeTNK276UUNO1g)
